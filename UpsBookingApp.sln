@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36202.13 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpsBookingApp", "UpsBookingApp\UpsBookingApp\UpsBookingApp.csproj", "{F54F41A9-5F2D-4817-B12D-2D63D8351516}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpsBookingApp.Client", "UpsBookingApp\UpsBookingApp.Client\UpsBookingApp.Client.csproj", "{1B2B9FE9-C1FE-4FD2-A58E-E6565DDA7ABD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F54F41A9-5F2D-4817-B12D-2D63D8351516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F54F41A9-5F2D-4817-B12D-2D63D8351516}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F54F41A9-5F2D-4817-B12D-2D63D8351516}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F54F41A9-5F2D-4817-B12D-2D63D8351516}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B2B9FE9-C1FE-4FD2-A58E-E6565DDA7ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B2B9FE9-C1FE-4FD2-A58E-E6565DDA7ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B2B9FE9-C1FE-4FD2-A58E-E6565DDA7ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B2B9FE9-C1FE-4FD2-A58E-E6565DDA7ABD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2A7CD71A-42A0-4FB3-9392-C0431D708E80}
+	EndGlobalSection
+EndGlobal
