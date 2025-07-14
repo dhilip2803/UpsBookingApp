@@ -1,0 +1,79 @@
+﻿@page "/admin-desks"
+@inject HttpClient Http
+@rendermode InteractiveWebAssembly
+@using System.Net.Http.Json
+@using UpsBookingApp.Client.Models
+
+<h3>Admin Desk Management</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Floor</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var desk in desks)
+        {
+            <tr>
+                <td>@desk.Name</td>
+                <td>@desk.Location</td>
+                <td>@desk.Floor</td>
+                <td>@(desk.IsAvailable ? "Available" : "Booked")</td>
+                <td>
+                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteDesk(desk.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h5 class="mt-4">Add New Desk</h5>
+
+<div class="form-group">
+    <input class="form-control mb-2" placeholder="Desk Name" @bind="newDesk.Name" />
+    <input class="form-control mb-2" placeholder="Location" @bind="newDesk.Location" />
+    <input class="form-control mb-2" placeholder="Floor" @bind="newDesk.Floor" />
+    <button class="btn btn-primary" @onclick="AddDesk">Add Desk</button>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p class="text-success">@message</p>
+}
+
+@code {
+    private List<Desk> desks = new();
+    private Desk newDesk = new();
+    private string? message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDesks();
+    }
+
+    private async Task LoadDesks()
+    {
+        desks = await Http.GetFromJsonAsync<List<Desk>>("api/BookingApi/desks") ?? new();
+    }
+
+    private async Task AddDesk()
+    {
+        newDesk.IsAvailable = true;
+        var response = await Http.PostAsJsonAsync("api/AdminApi/add-desk", newDesk);
+        message = response.IsSuccessStatusCode ? "Desk added!" : "Failed to add desk.";
+        newDesk = new();
+        await LoadDesks();
+    }
+
+    private async Task DeleteDesk(int deskId)
+    {
+        var response = await Http.DeleteAsync($"api/AdminApi/delete-desk/{deskId}");
+        message = response.IsSuccessStatusCode ? "Desk deleted!" : "Failed to delete.";
+        await LoadDesks();
+    }
+}

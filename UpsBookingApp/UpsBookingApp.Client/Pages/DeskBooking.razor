@@ -1,126 +1,119 @@
-﻿@page "/desks"
+﻿@page "/desk-booking"
 @rendermode InteractiveWebAssembly
-@using UPSBookingApp.Client.Models
+@inject HttpClient Http
+@using System.Net.Http.Json
 @using UpsBookingApp.Client.Models
-@inject UPSBookingApp.Client.Services.BookingService BookingService
-@implements IDisposable
 
-<h3>Desk Booking System</h3>
+
+<h3>Desk Booking</h3>
+
+@if (myBookings.Any())
+{
+    <h4 class="mt-4">My Bookings</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Desk</th>
+                <th>Floor</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in myBookings)
+            {
+                var desk = desks.FirstOrDefault(d => d.Id == booking.DeskId);
+                <tr>
+                    <td>@desk?.Name</td>
+                    <td>@desk?.Floor</td>
+                    <td>@booking.StartTime.ToString("g")</td>
+                    <td>@booking.EndTime.ToString("g")</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" @onclick="() => CancelDesk(booking.DeskId)">
+                            Cancel
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
 
 @if (!string.IsNullOrWhiteSpace(confirmationMessage))
 {
     <p style="color: green;"><b>@confirmationMessage</b></p>
 }
 
-<hr />
-
-<h4>Select Floor</h4>
-<select @onchange="OnFloorChanged">
-    <option value="">-- Select Floor --</option>
-    @foreach (var floor in allFloors)
-    {
-        <option value="@floor">@floor</option>
-    }
-</select>
-
-<hr />
-<h4>📊 Floor Utilization Summary</h4>
-
-@foreach (var floor in allFloors)
+@if (desks.Any())
 {
-    var floorDesks = desks?.Where(d => d.Floor == floor).ToList();
-    var available = floorDesks?.Count(d => d.IsAvailable);
-    var booked = floorDesks?.Count(d => !d.IsAvailable);
-    var total = floorDesks?.Count;
-    var usage = total > 0 ? (int)((double)booked / total * 100) : 0;
-
-    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 15px; border-radius: 6px; background-color: #f9f9f9;">
-        <b>📍 @floor</b><br />
-        ✅ Available: @available &nbsp;&nbsp;
-        ❌ Booked: @booked &nbsp;&nbsp;
-        📊 Usage: @usage%
+    <div class="mb-3">
+        <label>Select Floor:</label>
+        <select @onchange="OnFloorChanged" class="form-select">
+            <option value="">-- Select Floor --</option>
+            @foreach (var floor in desks.Select(d => d.Floor).Distinct())
+            {
+                <option value="@floor">@floor</option>
+            }
+        </select>
     </div>
-}
 
-
-@if (!string.IsNullOrWhiteSpace(selectedFloor))
-{
-    <hr />
-
-    <h4>Select User</h4>
-    <select @bind="currentUser">
-        @foreach (var user in users)
-        {
-            <option value="@user">@user</option>
-        }
-    </select>
-    <h4>Select Booking Time</h4>
-    <label>Start Time:</label>
-    <input type="datetime-local" @bind="startTime" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
-
-    <label style="margin-left: 20px;">End Time:</label>
-    <input type="datetime-local" @bind="endTime" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
-
-    <hr />
-
-    <h4>Desk Layout – @selectedFloor</h4>
-
-    @if (filteredDesks.Any())
+    @if (!string.IsNullOrWhiteSpace(selectedFloor))
     {
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+        <button class="btn btn-outline-info mb-2" @onclick="SuggestDesk">Suggest Desk</button>
+        <div class="row">
             @foreach (var desk in filteredDesks)
             {
-                <div style="
-                                border: 2px solid black;
-                                padding: 10px;
-                                background-color: @(desk.IsAvailable ? "#d4edda" : "#f8d7da");
-                                text-align: center;
-                                border-radius: 8px;
-                                box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-                            ">
-                    <b>@desk.Name</b><br />
-                    <small>@desk.Location</small><br /><br />
-                    @if (desk.IsAvailable)
-                    {
-                        <button @onclick="() => BookDesk(desk.Id)">Book</button>
-                    }
-                    else
-                    {
-                        <button @onclick="() => CancelDesk(desk.Id)">Cancel</button>
-                    }
+                <div class="col-md-4 mb-3">
+                    <div class="card p-3">
+                        <h5>@desk.Name</h5>
+                        <p>Location: @desk.Location</p>
+                        <p>Status: <b>@(desk.IsAvailable ? "Available" : "Booked")</b></p>
+
+                        @if (desk.IsAvailable)
+                        {
+                            <div class="mb-2">
+                                <input class="form-control mb-1" placeholder="Your Name" @bind="userName" />
+                                <input class="form-control mb-1" type="datetime-local" @bind="startTime" />
+                                <input class="form-control mb-1" type="datetime-local" @bind="endTime" />
+                                <button class="btn btn-primary" @onclick="() => BookDesk(desk)">Book</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <button class="btn btn-danger" @onclick="() => CancelDesk(desk.Id)">Cancel</button>
+                        }
+                    </div>
                 </div>
             }
         </div>
     }
-    else
+
+    @if (!string.IsNullOrWhiteSpace(suggestedDeskMessage))
     {
-        <p>No desks found for this floor.</p>
+        <p class="text-success">@suggestedDeskMessage</p>
     }
 
-    <hr />
-
-    <h4>Current Bookings</h4>
-
-    @if (allBookings.Any())
+    @if (allBookings?.Any() == true)
     {
-        <table style="width: 100%; border-collapse: collapse;">
+        <h4>Current Bookings</h4>
+        <table class="table">
             <thead>
-                <tr style="border-bottom: 1px solid black;">
-                    <th style="text-align: left;">Desk</th>
+                <tr>
+                    <th>Desk</th>
                     <th>User</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
+                    <th>Start</th>
+                    <th>End</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var booking in allBookings)
                 {
-                    var deskName = desks.FirstOrDefault(d => d.Id == booking.DeskId)?.Name ?? "Unknown";
+                    var desk = desks.FirstOrDefault(d => d.Id == booking.DeskId);
                     <tr>
-                        <td>@deskName</td>
-                        <td style="@(booking.UserName == currentUser ? "font-weight: bold;" : "")">
-                            @booking.UserName
-                        </td>
+                        <td>@desk?.Name</td>
+                        <td>@booking.UserName</td>
                         <td>@booking.StartTime.ToString("g")</td>
                         <td>@booking.EndTime.ToString("g")</td>
                     </tr>
@@ -128,110 +121,90 @@
             </tbody>
         </table>
     }
-    else
-    {
-        <p>No bookings yet.</p>
-    }
+}
+else
+{
+    <p>Loading desks...</p>
 }
 
 @code {
-    private System.Timers.Timer? refreshTimer;
-    List<Desk>? desks;
-    List<Booking> allBookings = new();
-    List<Desk> filteredDesks = new();
-    List<string> allFloors = new();
+    private List<Desk> desks = new();
+    private List<Desk> filteredDesks = new();
+    private List<Booking> allBookings = new();
 
-    string? confirmationMessage;
-    string selectedFloor = "";
+    private string selectedFloor = "";
+    private string userName = "";
+    private DateTime startTime = DateTime.Now;
+    private DateTime endTime = DateTime.Now.AddHours(1);
+    private string? confirmationMessage;
+    private List<Booking> myBookings = new();
+    private string? suggestedDeskMessage;
 
-    DateTime startTime = DateTime.Now;
-    DateTime endTime = DateTime.Now.AddHours(2);
-    string currentUser = "Dhilip";
-
-    List<string> users = new()
+    protected override async Task OnInitializedAsync()
     {
-    "Dhilip",
-    "Guru",
-    "Siva",
-    "Admin"
-    };
-
-    protected override void OnInitialized()
-    {
-        refreshTimer = new System.Timers.Timer(15000); // 15 seconds
-        refreshTimer.Elapsed += async (sender, e) => await RefreshData();
-        refreshTimer.AutoReset = true;
-        refreshTimer.Enabled = true;
-        desks = BookingService.GetDesks();
-        allBookings = BookingService.GetBookings();
-        allFloors = desks.Select(d => d.Floor).Distinct().ToList();
+        await LoadData();
     }
 
-    void OnFloorChanged(ChangeEventArgs e)
+    private async Task LoadData()
+    {
+        desks = await Http.GetFromJsonAsync<List<Desk>>("api/BookingApi/desks") ?? new();
+        allBookings = await Http.GetFromJsonAsync<List<Booking>>("api/BookingApi/bookings") ?? new();
+
+        myBookings = allBookings
+            .Where(b => b.UserName.Equals(userName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        FilterDesksByFloor();
+    }
+
+
+    private void FilterDesksByFloor()
+    {
+        filteredDesks = string.IsNullOrEmpty(selectedFloor)
+            ? new List<Desk>()
+            : desks.Where(d => d.Floor == selectedFloor).ToList();
+    }
+
+    private async Task BookDesk(Desk desk)
+    {
+        var booking = new Booking
+        {
+            DeskId = desk.Id,
+            UserName = userName,
+            StartTime = startTime,
+            EndTime = endTime
+        };
+
+        var response = await Http.PostAsJsonAsync("api/BookingApi/book", booking);
+        confirmationMessage = response.IsSuccessStatusCode ? "Booking successful!" : "❌ Booking failed.";
+
+        await LoadData();
+    }
+
+    private async Task CancelDesk(int deskId)
+    {
+        var response = await Http.PostAsync($"api/BookingApi/cancel/{deskId}", null);
+        confirmationMessage = response.IsSuccessStatusCode ? "Booking cancelled." : "❌ Failed to cancel.";
+
+        await LoadData();
+    }
+
+    private async Task OnFloorChanged(ChangeEventArgs e)
     {
         selectedFloor = e.Value?.ToString() ?? "";
-        filteredDesks = desks.Where(d => d.Floor == selectedFloor).ToList();
+        FilterDesksByFloor();
+        await Task.CompletedTask;
     }
-
-    void BookDesk(int deskId)
+    private void SuggestDesk()
     {
-        if (startTime >= endTime)
-        {
-            confirmationMessage = "⚠️ End time must be after start time.";
-            return;
-        }
+        var suggested = desks
+            .Where(d => d.Floor == selectedFloor && d.IsAvailable)
+            .OrderBy(d => d.Name)
+            .FirstOrDefault();
 
-        var booking = BookingService.BookDesk(
-            deskId,
-            currentUser, 
-            startTime,
-            endTime
-        );
-
-        if (booking is not null)
-        {
-            confirmationMessage = $"✅ Booked {desks.First(d => d.Id == deskId).Name} from {booking.StartTime:t} to {booking.EndTime:t}.";
-            desks = BookingService.GetDesks();
-            filteredDesks = desks.Where(d => d.Floor == selectedFloor).ToList();
-            allBookings = BookingService.GetBookings();
-        }
-    }
-
-    void CancelDesk(int deskId)
-    {
-        var booking = allBookings.FirstOrDefault(b => b.DeskId == deskId);
-        if (booking is null) return;
-
-        if (booking.UserName != currentUser && currentUser != "Admin")
-        {
-            confirmationMessage = "❌ You can only cancel your own bookings.";
-            return;
-        }
-
-        BookingService.CancelBooking(deskId);
-        confirmationMessage = $"❌ Cancelled booking for {desks.First(d => d.Id == deskId).Name}.";
-        desks = BookingService.GetDesks();
-        filteredDesks = desks.Where(d => d.Floor == selectedFloor).ToList();
-        allBookings = BookingService.GetBookings();
-    }
-    private async Task RefreshData()
-    {
-        await InvokeAsync(() =>
-        {
-            desks = BookingService.GetDesks();
-            allBookings = BookingService.GetBookings();
-            if (!string.IsNullOrWhiteSpace(selectedFloor))
-            {
-                filteredDesks = desks.Where(d => d.Floor == selectedFloor).ToList();
-            }
-
-            StateHasChanged(); // Refresh the UI
-        });
-    }
-
-    public void Dispose()
-    {
-        refreshTimer?.Dispose();
+        suggestedDeskMessage = suggested is not null
+            ? $"Suggested desk: {suggested.Name} at {suggested.Location}"
+            : "No desks available on selected floor";
     }
 
 }

@@ -1,0 +1,31 @@
+﻿@page "/login"
+@inject NavigationManager Nav
+@inject UPSBookingApp.Client.Services.UserContext UserContext
+@rendermode InteractiveWebAssembly
+
+<h3>User Login</h3>
+
+<div class="form-group">
+    <label>Username</label>
+    <input class="form-control" @bind="UserContext.UserName" />
+</div>
+
+<div class="form-group mt-2">
+    <label>Role</label>
+    <select class="form-select" @bind="UserContext.Role">
+        <option>User</option>
+        <option>Admin</option>
+    </select>
+</div>
+
+<button class="btn btn-primary mt-3" @onclick="LoginUser">Login</button>
+
+@code {
+    private void LoginUser()
+    {
+        if (!string.IsNullOrWhiteSpace(UserContext.UserName))
+        {
+            Nav.NavigateTo("/desk-booking"); // or your home page
+        }
+    }
+}

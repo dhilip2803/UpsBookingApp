@@ -1,5 +1,4 @@
 ﻿using UpsBookingApp.Client.Models;
-using UPSBookingApp.Client.Models;
 
 namespace UPSBookingApp.Client.Services;
 
@@ -57,6 +56,12 @@ public class BookingService
         }
     }
 
-
+    public Desk? SuggestDesk(string floor)
+    {
+        return desks
+            .Where(d => d.Floor == floor && d.IsAvailable)
+            .OrderBy(d => d.Name) // sort if needed
+            .FirstOrDefault();
+    }
 
 }

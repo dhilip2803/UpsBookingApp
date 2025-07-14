@@ -1,4 +1,4 @@
-﻿namespace UPSBookingApp.Client.Models;
+﻿namespace UpsBookingApp.Client.Models;
 
 public class Desk
 {

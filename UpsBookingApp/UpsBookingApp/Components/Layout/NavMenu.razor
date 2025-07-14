@@ -9,11 +9,25 @@
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink href="/desks" Match="NavLinkMatch.All">
+            <NavLink href="/desk-booking" class="nav-link" Match="NavLinkMatch.All">
                 <span class="oi oi-calendar"></span> Desk Booking
             </NavLink>
         </div>
-
+        <div class="nav-item px-3">
+            <NavLink href="/floor-summary" class="nav-link" Match="NavLinkMatch.All">
+                <span class="oi oi-pie-chart" aria-hidden="true"></span> Floor Summary
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink href="/admin-desks" class="nav-link" Match="NavLinkMatch.All">
+                <span class="oi oi-cog"></span> Admin Desks
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink href="/booking-calendar" class="nav-link" Match="NavLinkMatch.All">
+                <span class="oi oi-calendar"></span> Booking Calendar
+            </NavLink>
+        </div>
     </nav>
 </div>
 

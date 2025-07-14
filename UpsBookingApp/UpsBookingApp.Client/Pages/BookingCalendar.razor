@@ -1,0 +1,57 @@
+﻿@page "/booking-calendar"
+@inject HttpClient Http
+@using System.Net.Http.Json
+@using UpsBookingApp.Client.Models
+
+<h3>Desk Booking Calendar (Today)</h3>
+
+@if (groupedBookings?.Any() == true)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Desk</th>
+                <th>Bookings (Today)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var deskGroup in groupedBookings)
+            {
+                <tr>
+                    <td><b>@deskGroup.Key</b></td>
+                    <td>
+                        @foreach (var booking in deskGroup.Value)
+                        {
+                            <span class="badge bg-primary me-1">
+                                @booking.UserName: @booking.StartTime.ToShortTimeString() - @booking.EndTime.ToShortTimeString()
+                            </span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Loading bookings...</p>
+}
+
+@code {
+    private Dictionary<string, List<Booking>> groupedBookings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var bookings = await Http.GetFromJsonAsync<List<Booking>>("api/BookingApi/bookings") ?? new();
+        var desks = await Http.GetFromJsonAsync<List<Desk>>("api/BookingApi/desks") ?? new();
+
+        var today = DateTime.Today;
+        var todayBookings = bookings
+            .Where(b => b.StartTime.Date == today)
+            .ToList();
+
+        groupedBookings = todayBookings
+            .GroupBy(b => desks.FirstOrDefault(d => d.Id == b.DeskId)?.Name ?? $"Desk {b.DeskId}")
+            .ToDictionary(g => g.Key, g => g.OrderBy(b => b.StartTime).ToList());
+    }
+}

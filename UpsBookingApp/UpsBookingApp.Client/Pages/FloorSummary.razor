@@ -1,0 +1,68 @@
+﻿@page "/floor-summary"
+@rendermode InteractiveWebAssembly
+@inject HttpClient Http
+@using System.Net.Http.Json
+@using UpsBookingApp.Client.Models
+
+<h3>Floor Utilization Summary</h3>
+
+@if (summary.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Floor</th>
+                <th>Total Desks</th>
+                <th>Booked</th>
+                <th>Available</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in summary)
+            {
+                <tr>
+                    <td>@row.Floor</td>
+                    <td>@row.Total</td>
+                    <td>@row.Booked</td>
+                    <td>@row.Available</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Loading floor summary...</p>
+}
+
+@code {
+    private List<Desk> desks = new();
+    private List<Booking> bookings = new();
+    private List<FloorUtilSummary> summary = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        desks = await Http.GetFromJsonAsync<List<Desk>>("api/BookingApi/desks") ?? new();
+        bookings = await Http.GetFromJsonAsync<List<Booking>>("api/BookingApi/bookings") ?? new();
+
+        summary = desks
+            .GroupBy(d => d.Floor)
+            .Select(g => new FloorUtilSummary
+            {
+                Floor = g.Key,
+                Total = g.Count(),
+                Booked = g.Count(d => !d.IsAvailable),
+                Available = g.Count(d => d.IsAvailable)
+            })
+            .OrderBy(f => f.Floor)
+            .ToList();
+    }
+
+    public class FloorUtilSummary
+    {
+        public string Floor { get; set; } = "";
+        public int Total { get; set; }
+        public int Booked { get; set; }
+        public int Available { get; set; }
+    }
+}
