@@ -11,6 +11,7 @@
         <tr>
             <th>Name</th>
             <th>Location</th>
+            <th>Description</th>
             <th>Floor</th>
             <th>Status</th>
             <th>Action</th>
@@ -22,6 +23,7 @@
             <tr>
                 <td>@desk.Name</td>
                 <td>@desk.Location</td>
+                <td>@desk.Description</td>
                 <td>@desk.Floor</td>
                 <td>@(desk.IsAvailable ? "Available" : "Booked")</td>
                 <td>
@@ -35,8 +37,9 @@
 <h5 class="mt-4">Add New Desk</h5>
 
 <div class="form-group">
-    <input class="form-control mb-2" placeholder="Desk Name" @bind="newDesk.Name" />
-    <input class="form-control mb-2" placeholder="Location" @bind="newDesk.Location" />
+    <input class="form-control mb-2" placeholder="Meeting Room Name" @bind="newDesk.Name" />
+    <input class="form-control mb-2" placeholder="Room ID" @bind="newDesk.Location" />
+    <input class="form-control mb-2" placeholder="Landmark" @bind="newDesk.Description" />
     <input class="form-control mb-2" placeholder="Floor" @bind="newDesk.Floor" />
     <button class="btn btn-primary" @onclick="AddDesk">Add Desk</button>
 </div>
