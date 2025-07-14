@@ -6,7 +6,6 @@
 
 <h3>Desk Booking</h3>
 
-
 @if (!string.IsNullOrWhiteSpace(confirmationMessage))
 {
     <p style="color: green;"><b>@confirmationMessage</b></p>
@@ -32,20 +31,25 @@
                 <option value="Available">Show Available</option>
             </select>
         </div>
-        <div class="col-md-4 d-flex align-items-end">
-            <button class="btn btn-primary w-100" @onclick="SearchDesks">Search</button>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label>Select Date:</label>
+            <input class="form-control" type="date" @bind="selectedDate" />
+        </div>
+        <div class="col-md-4">
+            <label>Start Time:</label>
+            <input class="form-control" type="time" @bind-value="startDateTime" @bind-value:event="oninput" />
+        </div>
+        <div class="col-md-4">
+            <label>End Time:</label>
+            <input class="form-control" type="time" @bind-value="endDateTime" @bind-value:event="oninput" />
         </div>
     </div>
 
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label>Start Time:</label>
-            <input class="form-control" type="datetime-local" @bind="startTime" />
-        </div>
-        <div class="col-md-6">
-            <label>End Time:</label>
-            <input class="form-control" type="datetime-local" @bind="endTime" />
-        </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <button class="btn btn-primary w-100" @onclick="SearchDesks">Search</button>
     </div>
 
     @if (!string.IsNullOrWhiteSpace(selectedFloor))
@@ -79,7 +83,6 @@
     {
         <p class="text-success">@suggestedDeskMessage</p>
     }
-
 }
 else
 {
@@ -94,12 +97,17 @@ else
 
     private string selectedFloor = "";
     private string selectedFilter = "Available";
-    private string userName = "Dhilip"; // Replace with logged-in user in future
-    private DateTime startTime = DateTime.Now;
-    private DateTime endTime = DateTime.Now.AddHours(1);
+    private string userName = "Dhilip";
+
+    private DateTime selectedDate = DateTime.Today;
+    private DateTime startDateTime = DateTime.Today.AddHours(8);   // 08:00
+    private DateTime endDateTime = DateTime.Today.AddHours(17);    // 17:00
 
     private string? confirmationMessage;
     private string? suggestedDeskMessage;
+
+    private DateTime StartDateTimeCombined => selectedDate.Date + startDateTime.TimeOfDay;
+    private DateTime EndDateTimeCombined => selectedDate.Date + endDateTime.TimeOfDay;
 
     protected override async Task OnInitializedAsync()
     {
@@ -119,9 +127,7 @@ else
     private void FilterDesks()
     {
         var bookingsInSlot = allBookings
-            .Where(b =>
-                b.StartTime < endTime &&
-                b.EndTime > startTime)
+            .Where(b => b.StartTime < EndDateTimeCombined && b.EndTime > StartDateTimeCombined)
             .Select(b => b.DeskId)
             .ToHashSet();
 
@@ -151,9 +157,9 @@ else
         var booking = new Booking
         {
             DeskId = desk.Id,
-            UserName = userName,
-            StartTime = startTime,
-            EndTime = endTime
+            UserName = "Dhilip",
+            StartTime = StartDateTimeCombined,
+            EndTime = EndDateTimeCombined
         };
 
         var response = await Http.PostAsJsonAsync("api/BookingApi/book", booking);
@@ -180,7 +186,6 @@ else
 
     private Task OnTypeChanged(ChangeEventArgs e)
     {
-        // Reserved for booking type filter
         return Task.CompletedTask;
     }
 }
