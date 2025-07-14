@@ -48,15 +48,27 @@
 
 @if (desks.Any())
 {
-    <div class="mb-3">
-        <label>Select Floor:</label>
-        <select @onchange="OnFloorChanged" class="form-select">
-            <option value="">-- Select Floor --</option>
-            @foreach (var floor in desks.Select(d => d.Floor).Distinct())
-            {
-                <option value="@floor">@floor</option>
-            }
-        </select>
+
+    <div class="d-flex mb-4" style="gap: 1rem;">
+        <div class="flex-fill">
+            <label>Select Floor:</label>
+            <select @onchange="OnFloorChanged" class="form-select">
+                <option value="">-- Select Floor --</option>
+                @foreach (var floor in desks.Select(d => d.Floor).Distinct())
+                {
+                    <option value="@floor">@floor</option>
+                }
+            </select>
+        </div>
+        <div class="flex-fill">
+            <label>Select Type of Booking:</label>
+            <select @onchange="OnTypeChanged" class="form-select">
+                <option value="">-- Select Booking Types --</option>
+                <option value="MeetingRoom">Meeting Rooms</option>
+                <option value="Desk">Desks</option>
+                <option value="Lab">Labs</option>
+            </select>
+        </div>
     </div>
 
     @if (!string.IsNullOrWhiteSpace(selectedFloor))
@@ -194,6 +206,10 @@ else
         selectedFloor = e.Value?.ToString() ?? "";
         FilterDesksByFloor();
         await Task.CompletedTask;
+    }
+    private async Task OnTypeChanged(ChangeEventArgs e)
+    {
+
     }
     private void SuggestDesk()
     {
