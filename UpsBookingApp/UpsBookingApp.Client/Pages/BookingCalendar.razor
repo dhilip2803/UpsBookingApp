@@ -37,11 +37,42 @@ else
     <p>Loading bookings...</p>
 }
 
+@if (allBookings?.Any() == true)
+{
+    <h4>Current Bookings</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Desk</th>
+                <th>User</th>
+                <th>Start</th>
+                <th>End</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in allBookings)
+            {
+                var desk = desks.FirstOrDefault(d => d.Id == booking.DeskId);
+                <tr>
+                    <td>@desk?.Name</td>
+                    <td>@booking.UserName</td>
+                    <td>@booking.StartTime.ToString("g")</td>
+                    <td>@booking.EndTime.ToString("g")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 @code {
     private Dictionary<string, List<Booking>> groupedBookings = new();
+    private List<Booking> myBookings = new();
+    private List<Desk> desks = new();
+    private List<Booking> allBookings = new();
+    private string userName = "Dhilip";
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadData();
         var bookings = await Http.GetFromJsonAsync<List<Booking>>("api/BookingApi/bookings") ?? new();
         var desks = await Http.GetFromJsonAsync<List<Desk>>("api/BookingApi/desks") ?? new();
 
@@ -53,5 +84,14 @@ else
         groupedBookings = todayBookings
             .GroupBy(b => desks.FirstOrDefault(d => d.Id == b.DeskId)?.Name ?? $"Desk {b.DeskId}")
             .ToDictionary(g => g.Key, g => g.OrderBy(b => b.StartTime).ToList());
+    }
+    private async Task LoadData()
+    {
+        desks = await Http.GetFromJsonAsync<List<Desk>>("api/BookingApi/desks") ?? new();
+        allBookings = await Http.GetFromJsonAsync<List<Booking>>("api/BookingApi/bookings") ?? new();
+
+        myBookings = allBookings
+            .Where(b => b.UserName.Equals(userName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
     }
 }

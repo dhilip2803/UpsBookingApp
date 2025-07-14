@@ -6,38 +6,6 @@
 
 <h3>Desk Booking</h3>
 
-@if (myBookings.Any())
-{
-    <h4 class="mt-4">My Bookings</h4>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Desk</th>
-                <th>Floor</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var booking in myBookings)
-            {
-                var desk = desks.FirstOrDefault(d => d.Id == booking.DeskId);
-                <tr>
-                    <td>@desk?.Name</td>
-                    <td>@desk?.Floor</td>
-                    <td>@booking.StartTime.ToString("g")</td>
-                    <td>@booking.EndTime.ToString("g")</td>
-                    <td>
-                        <button class="btn btn-sm btn-danger" @onclick="() => CancelDesk(booking.DeskId)">
-                            Cancel
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
 
 @if (!string.IsNullOrWhiteSpace(confirmationMessage))
 {
@@ -112,32 +80,6 @@
         <p class="text-success">@suggestedDeskMessage</p>
     }
 
-    @if (allBookings?.Any() == true)
-    {
-        <h4>Current Bookings</h4>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Desk</th>
-                    <th>User</th>
-                    <th>Start</th>
-                    <th>End</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var booking in allBookings)
-                {
-                    var desk = desks.FirstOrDefault(d => d.Id == booking.DeskId);
-                    <tr>
-                        <td>@desk?.Name</td>
-                        <td>@booking.UserName</td>
-                        <td>@booking.StartTime.ToString("g")</td>
-                        <td>@booking.EndTime.ToString("g")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
 }
 else
 {
