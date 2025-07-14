@@ -1,0 +1,123 @@
+﻿@page "/seatmap"
+@using System.Drawing
+@using UpsBookingApp.Client.Models
+@rendermode InteractiveWebAssembly
+
+@code {
+    private const int Tables = 9;
+    private const int SeatsPerTable = 10;
+    private const int TablesPerColumn = 3; // 3 tables per column
+
+    private readonly List<Desk> Desks = new();
+
+    protected override void OnInitialized()
+    {
+        int deskId = 1;
+        for (int t = 0; t < Tables; t++)
+        {
+            for (int s = 0; s < SeatsPerTable; s++)
+            {
+                Desks.Add(new Desk
+                {
+                    Id = deskId++,
+                    TableNumber = t,
+                    SeatNumber = s,
+                    Status = DeskStatus.Available
+                });
+            }
+        }
+    }
+
+    private void ToggleSeat(Desk desk)
+    {
+        desk.Status = desk.Status switch
+        {
+            DeskStatus.Available => DeskStatus.Selected,
+            DeskStatus.Selected => DeskStatus.Reserved,
+            DeskStatus.Reserved => DeskStatus.Available,
+            _ => DeskStatus.Available
+        };
+    }
+
+    private string GetSeatColor(DeskStatus status) => status switch
+    {
+        DeskStatus.Available => "#4CAF50",   // Green
+        DeskStatus.Selected => "#2196F3",    // Blue
+        DeskStatus.Reserved => "#F44336",    // Red
+        _ => "#CCCCCC"
+    };
+
+    private (double x, double y) GetTableCenter(int table)
+    {
+        double[] columnX = { 150, 500, 850 };
+        double yStart = 70;
+        double ySpacing = 200;
+
+        int col = table / TablesPerColumn;
+        int row = table % TablesPerColumn;
+
+        double x = columnX[col];
+        double y = yStart + row * ySpacing;
+        return (x, y);
+    }
+
+    private string GetSeatTransform(int table, int seat)
+    {
+        var (centerX, centerY) = GetTableCenter(table);
+        double ovalA = 60; // oval horizontal radius
+        double ovalB = 30; // oval vertical radius
+
+        double seatDistance = 38; // distance from oval edge to seat center
+        double a = ovalA + seatDistance;
+        double b = ovalB + seatDistance;
+
+        double angle = 360.0 * seat / SeatsPerTable;
+        double rad = angle * Math.PI / 180.0;
+        double x = centerX + a * Math.Cos(rad);
+        double y = centerY + b * Math.Sin(rad);
+
+        return $"translate({x}px, {y}px)";
+    }
+}
+
+<div style="position:relative; width:650px; height:700px;">
+    @foreach (var desk in Desks)
+    {
+        var (centerX, centerY) = GetTableCenter(desk.TableNumber);
+        if (desk.SeatNumber == 0)
+        {
+            <!-- Draw oval table for each table (once per table) -->
+            <div style="
+                        position:absolute;
+                        left:@(centerX - 45)px;
+                        top:@(centerY - 15)px;
+                        width:120px;
+                        height:60px;
+                        border-radius:60px/30px;
+                        background:#eee;
+                        border:2px solid #bbb;
+                        z-index:0;">
+            </div>
+        }
+        <button style="
+                    position:absolute;
+                    width:32px; height:32px;
+                    border-radius:50%;
+                    border:1px solid #888;
+                    background:@GetSeatColor(desk.Status);
+                    transform:@GetSeatTransform(desk.TableNumber, desk.SeatNumber);
+                    cursor:pointer;
+                    transition:background 0.2s;
+                    z-index:1;
+                "
+                @onclick="() => ToggleSeat(desk)">
+            @desk.Id
+        </button>
+    }
+</div>
+
+<div>
+    <span style="display:inline-block;width:20px;height:20px;background:#4CAF50;border-radius:50%;margin-right:5px;"></span> Available
+    <span style="display:inline-block;width:20px;height:20px;background:#2196F3;border-radius:50%;margin:0 5px 0 15px;"></span> Selected
+    <span style="display:inline-block;width:20px;height:20px;background:#F44336;border-radius:50%;margin:0 5px 0 15px;"></span> Reserved
+</div>
