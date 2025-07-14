@@ -1,31 +1,54 @@
-﻿@page "/login"
+﻿@page "/"
+@using UPSBookingApp.Client.Services
+@using UpsBookingApp.Client.Models
+@inject HttpClient Http
 @inject NavigationManager Nav
-@inject UPSBookingApp.Client.Services.UserContext UserContext
+@inject UserContext UserContext
 @rendermode InteractiveWebAssembly
 
-<h3>User Login</h3>
+<h3>Login</h3>
 
 <div class="form-group">
-    <label>Username</label>
-    <input class="form-control" @bind="UserContext.UserName" />
-</div>
-
-<div class="form-group mt-2">
-    <label>Role</label>
-    <select class="form-select" @bind="UserContext.Role">
-        <option>User</option>
-        <option>Admin</option>
-    </select>
+    <label>User ID</label>
+    <input class="form-control" @bind="inputUserId" />
 </div>
 
 <button class="btn btn-primary mt-3" @onclick="LoginUser">Login</button>
 
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
 @code {
-    private void LoginUser()
+    private string inputUserId = "";
+    private string errorMessage = "";
+
+    private async Task LoginUser()
     {
-        if (!string.IsNullOrWhiteSpace(UserContext.UserName))
+        if (string.IsNullOrWhiteSpace(inputUserId))
         {
-            Nav.NavigateTo("/desk-booking"); // or your home page
+            errorMessage = "Please enter a valid User ID.";
+            return;
+        }
+
+        try
+        {
+            var user = await Http.GetFromJsonAsync<User>($"api/BookingApi/validate/{inputUserId}");
+            if (user != null)
+            {
+                // Set login user context
+                UserContext.UserId = user.UserId;
+                UserContext.UserName = user.Name;
+                UserContext.Role = user.Role;
+
+                // Redirect to main booking page
+                Nav.NavigateTo("/desk-booking");
+            }
+        }
+        catch
+        {
+            errorMessage = "Invalid User ID. Please try again.";
         }
     }
 }

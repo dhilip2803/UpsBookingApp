@@ -47,4 +47,12 @@ public class BookingApiController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok();
     }
+
+    [HttpGet("validate/{userId}")]
+    public async Task<IActionResult> ValidateUser(string userId)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+        if (user == null) return NotFound();
+        return Ok(user);
+    }
 }

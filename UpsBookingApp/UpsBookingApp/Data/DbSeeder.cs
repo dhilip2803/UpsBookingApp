@@ -35,6 +35,7 @@ public static class DbSeeder
             };
 
             db.Users.AddRange(users);
+            db.SaveChanges();
         }
 
     }
