@@ -1,0 +1,68 @@
+﻿@page "/my-bookings"
+@rendermode InteractiveWebAssembly
+@inject HttpClient Http
+@using System.Net.Http.Json
+@using UpsBookingApp.Client.Models
+
+
+<h4 class="mt-4">My Bookings</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Desk</th>
+            <th>Floor</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var booking in myBookings)
+                {
+                var desk = desks.FirstOrDefault(d => d.Id == booking.DeskId);
+            <tr>
+                <td>@desk?.Name</td>
+                <td>@desk?.Floor</td>
+                <td>@booking.StartTime.ToString("g")</td>
+                <td>@booking.EndTime.ToString("g")</td>
+                <td>
+                    <button class="btn btn-sm btn-danger" @onclick="() => CancelDesk(booking.DeskId)">
+                        Cancel
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Booking> myBookings = new();
+    private List<Desk> desks = new();
+    private List<Desk> filteredDesks = new();
+    private List<Booking> allBookings = new();
+    private string userName = "Dhilip";
+    private string? confirmationMessage;
+    private DateTime startTime = DateTime.Now;
+    private DateTime endTime = DateTime.Now.AddHours(1);
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        desks = await Http.GetFromJsonAsync<List<Desk>>("api/BookingApi/desks") ?? new();
+        allBookings = await Http.GetFromJsonAsync<List<Booking>>("api/BookingApi/bookings") ?? new();
+
+        myBookings = allBookings
+            .Where(b => b.UserName.Equals(userName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+    private async Task CancelDesk(int deskId)
+    {
+        var response = await Http.PostAsync($"api/BookingApi/cancel/{deskId}", null);
+        confirmationMessage = response.IsSuccessStatusCode ? "Booking cancelled." : "❌ Failed to cancel.";
+
+        await LoadData();
+    }
+}
