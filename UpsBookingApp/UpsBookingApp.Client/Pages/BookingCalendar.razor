@@ -1,7 +1,10 @@
 ﻿@page "/booking-calendar"
+@rendermode InteractiveWebAssembly
 @inject HttpClient Http
 @using System.Net.Http.Json
 @using UpsBookingApp.Client.Models
+@using UPSBookingApp.Client.Services
+@inject UserContext UserContext
 
 <h3>Desk Booking Calendar (Today)</h3>
 
@@ -68,7 +71,6 @@ else
     private List<Booking> myBookings = new();
     private List<Desk> desks = new();
     private List<Booking> allBookings = new();
-    private string userName = "Dhilip";
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,7 +93,7 @@ else
         allBookings = await Http.GetFromJsonAsync<List<Booking>>("api/BookingApi/bookings") ?? new();
 
         myBookings = allBookings
-            .Where(b => b.UserName.Equals(userName, StringComparison.OrdinalIgnoreCase))
+            .Where(b => b.UserName.Equals(UserContext.UserName, StringComparison.OrdinalIgnoreCase))
             .ToList();
     }
 }

@@ -25,7 +25,7 @@ builder.Services.AddScoped(sp =>
 // Add Razor Components (Blazor WebAssembly mode)
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
-
+builder.Services.AddScoped<UserContext>();
 var app = builder.Build();
 
 // Apply DB migration and seed

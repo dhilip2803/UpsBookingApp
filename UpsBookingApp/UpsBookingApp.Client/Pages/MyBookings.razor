@@ -3,7 +3,8 @@
 @inject HttpClient Http
 @using System.Net.Http.Json
 @using UpsBookingApp.Client.Models
-
+@using UPSBookingApp.Client.Services
+@inject UserContext UserContext
 
 <h4 class="mt-4">My Bookings</h4>
 <table class="table">
@@ -40,7 +41,6 @@
     private List<Desk> desks = new();
     private List<Desk> filteredDesks = new();
     private List<Booking> allBookings = new();
-    private string userName = "Dhilip";
     private string? confirmationMessage;
     private DateTime startTime = DateTime.Now;
     private DateTime endTime = DateTime.Now.AddHours(1);
@@ -55,7 +55,7 @@
         allBookings = await Http.GetFromJsonAsync<List<Booking>>("api/BookingApi/bookings") ?? new();
 
         myBookings = allBookings
-            .Where(b => b.UserName.Equals(userName, StringComparison.OrdinalIgnoreCase))
+            .Where(b => b.UserName.Equals(UserContext.UserName, StringComparison.OrdinalIgnoreCase))
             .ToList();
     }
     private async Task CancelDesk(int deskId)
