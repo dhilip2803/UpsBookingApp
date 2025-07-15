@@ -38,5 +38,28 @@ public static class DbSeeder
             db.SaveChanges();
         }
 
+        if (!db.Workspaces.Any())
+        {
+            var workspaces = new List<Workspace>();
+            int id = 1;
+            for (int t = 0; t < 9; t++)
+            {
+                for (int s = 0; s < 10; s++)
+                {
+                    workspaces.Add(new Workspace
+                    {
+                        Id = id++,
+                        TableNumber = t,
+                        SeatNumber = s,
+                        Status = WorkspaceStatus.Available
+                    });
+                }
+            }
+
+            db.Workspaces.AddRange(workspaces);
+            db.SaveChanges();
+        }
+
+
     }
 }
