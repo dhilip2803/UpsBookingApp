@@ -104,10 +104,20 @@ else if (activeType == "Desk")
     {
         newDesk.IsAvailable = true;
         var response = await Http.PostAsJsonAsync("api/AdminApi/add-desk", newDesk);
+        message = response.IsSuccessStatusCode ? "Meeting Room added!" : "Failed to add Room.";
+        newDesk = new();
+        await LoadDesks();
+    }
+
+    private async Task AddWorkstation()
+    {
+        newDesk.IsAvailable = true;
+        var response = await Http.PostAsJsonAsync("api/AdminApi/add-workstation", newDesk);
         message = response.IsSuccessStatusCode ? "Desk added!" : "Failed to add desk.";
         newDesk = new();
         await LoadDesks();
     }
+
 
     private async Task DeleteDesk(int deskId)
     {

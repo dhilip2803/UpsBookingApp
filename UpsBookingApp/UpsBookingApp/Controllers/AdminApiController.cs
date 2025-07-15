@@ -23,6 +23,14 @@ namespace UpsBookingApp.Controllers
             return Ok();
         }
 
+        [HttpPost("add-workstation")]
+        public async Task<IActionResult> AddWorkStation([FromBody] Desk desk)
+        {
+            _context.Desks.Add(desk);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
         [HttpDelete("delete-desk/{id}")]
         public async Task<IActionResult> DeleteDesk(int id)
         {

@@ -6,15 +6,27 @@
 @using UPSBookingApp.Client.Services
 @inject UserContext UserContext
 
-<h3>Desk Booking Calendar (Today)</h3>
+<h3>Booking Summary</h3>
 
+<div class="btn-group mb-3">
+    <button class="btn @(activeType == "MeetingRooms" ? "btn-secondary" : "btn-outline-secondary")"
+            @onclick="@(() => activeType = "MeetingRooms")">
+        Meeting Room
+    </button>
+    <button class="btn @(activeType == "Desks" ? "btn-primary" : "btn-outline-primary")"
+            @onclick="@(() => activeType = "Desks")">
+        Desk
+    </button>
+</div>
+@if (activeType == "MeetingRooms")
+{
 @if (groupedBookings?.Any() == true)
 {
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Desk</th>
-                <th>Bookings (Today)</th>
+                <th>Meeting Room</th>
+                <th>Booking Details</th>
             </tr>
         </thead>
         <tbody>
@@ -26,7 +38,7 @@
                         @foreach (var booking in deskGroup.Value)
                         {
                             <span class="badge bg-primary me-1">
-                                @booking.UserName: @booking.StartTime.ToShortTimeString() - @booking.EndTime.ToShortTimeString()
+                                    @booking.UserName: @booking.StartTime.ToString("dd MMM yyyy, hh:mm tt") - @booking.EndTime.ToString("dd MMM yyyy, hh:mm tt")
                             </span>
                         }
                     </td>
@@ -35,42 +47,33 @@
         </tbody>
     </table>
 }
+
 else
 {
     <p>Loading bookings...</p>
 }
+}
 
-@if (allBookings?.Any() == true)
+@if (activeType == "Desks")
 {
-    <h4>Current Bookings</h4>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Desk</th>
-                <th>User</th>
-                <th>Start</th>
-                <th>End</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var booking in allBookings)
-            {
-                var desk = desks.FirstOrDefault(d => d.Id == booking.DeskId);
+    @if (groupedBookings?.Any() == true)
+    {
+        <table class="table table-bordered">
+            <thead>
                 <tr>
-                    <td>@desk?.Name</td>
-                    <td>@booking.UserName</td>
-                    <td>@booking.StartTime.ToString("g")</td>
-                    <td>@booking.EndTime.ToString("g")</td>
+                    <th>Desk</th>
+                    <th>Booking Details</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+        </table>
+    }
 }
 @code {
     private Dictionary<string, List<Booking>> groupedBookings = new();
     private List<Booking> myBookings = new();
     private List<Desk> desks = new();
     private List<Booking> allBookings = new();
+    private string activeType = "MeetingRooms";
 
     protected override async Task OnInitializedAsync()
     {
