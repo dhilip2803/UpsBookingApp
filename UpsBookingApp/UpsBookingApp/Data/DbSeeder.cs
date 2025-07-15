@@ -18,12 +18,20 @@ public static class DbSeeder
             db.SaveChangesAsync();
         }
 
-        //var exitingdesk = db.Desks.ToList();
-        //if (exitingdesk.Any())
-        //{
-        //    db.Desks.RemoveRange(exitingdesk);
-        //    db.SaveChangesAsync();
-        //}
+        var exitingdesk = db.Desks.ToList();
+        if (exitingdesk.Any())
+        {
+            db.Desks.RemoveRange(exitingdesk);
+            db.SaveChangesAsync();
+        }
+
+        var exitingBookings = db.Bookings.ToList();
+        if (exitingBookings.Any())
+        {
+            db.Bookings.RemoveRange(exitingBookings);
+            db.SaveChangesAsync();
+        }
+
 
 
         if (!db.Desks.Any())
