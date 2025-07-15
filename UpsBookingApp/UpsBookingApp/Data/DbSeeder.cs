@@ -12,10 +12,10 @@ public static class DbSeeder
         {
             var desks = new List<Desk>
             {
-                new() { Name = "Desk A1", Location = "C-8C-117", Description = "Near to Cafeteria", Floor = "Floor 1", IsAvailable = true },
-                new() { Name = "Desk A2", Location = "C-8C-118", Description = "Beside ATS seatings", Floor = "Floor 1", IsAvailable = true },
-                new() { Name = "Desk B1", Location = "C-8C-119", Description = "Campus 30 beside pantry 1", Floor = "Floor 2",  IsAvailable = true },
-                new() { Name = "Desk B2", Location = "C-8C-122", Description = "Near to game room", Floor = "Floor 2", IsAvailable = true },
+                new() { Name = "Desk A1", Location = "C-8C-117", Description = "Near to Cafeteria", Capacity = 10, Floor = "Floor 1", IsAvailable = true },
+                new() { Name = "Desk A2", Location = "C-8C-118", Description = "Beside ATS seatings", Capacity = 20, Floor = "Floor 1", IsAvailable = true },
+                new() { Name = "Desk B1", Location = "C-8C-119", Description = "Campus 30 beside pantry 1", Capacity = 15, Floor = "Floor 2",  IsAvailable = true },
+                new() { Name = "Desk B2", Location = "C-8C-122", Description = "Near to game room", Capacity = 10, Floor = "Floor 2", IsAvailable = true },
             };
 
             db.Desks.AddRange(desks);
