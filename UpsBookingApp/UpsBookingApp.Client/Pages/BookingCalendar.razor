@@ -50,7 +50,7 @@
 
 else
 {
-    <p>Loading bookings...</p>
+    <p>No Bookings at the moment</p>
 }
 }
 
@@ -70,7 +70,14 @@ else
             @foreach (var deskGroup in deskBookings)
             {
                 <tr>
-                    <td><b>@deskGroup.Key</b></td>
+                        <td>
+                            <b> 
+                                @foreach (var booking in deskGroup.Value)
+                                {
+                                    @($"Seat {booking.DeskId}")
+                                }
+                            </b>
+                        </td>
                     <td>
                         @foreach (var booking in deskGroup.Value)
                         {

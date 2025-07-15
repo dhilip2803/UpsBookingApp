@@ -10,7 +10,7 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Meeting Room</th>
+            <th>Meeting Room/Desk</th>
             <th>Floor</th>
             <th>Start</th>
             <th>End</th>
@@ -19,11 +19,26 @@
     </thead>
     <tbody>
         @foreach (var booking in myBookings)
-                {
+        {
+            string? name = null;
+            string? floor = null;
+
+            if (booking.BookingType == "Workspace")
+            {
+                var workspace = workspaces.FirstOrDefault(w => w.SeatNumber == booking.DeskId);
+                name = $"Seat {workspace?.SeatNumber}";
+                floor = workspace?.Floor;
+            }
+            else
+            {
                 var desk = desks.FirstOrDefault(d => d.Id == booking.DeskId);
+                name = desk?.Name;
+                floor = desk?.Floor;
+            }
+
             <tr>
-                <td>@desk?.Name</td>
-                <td>@desk?.Floor</td>
+                <td>@name</td>
+                <td>@floor</td>
                 <td>@booking.StartTime.ToString("g")</td>
                 <td>@booking.EndTime.ToString("g")</td>
                 <td>
@@ -33,12 +48,14 @@
                 </td>
             </tr>
         }
+
     </tbody>
 </table>
 
 @code {
     private List<Booking> myBookings = new();
     private List<Desk> desks = new();
+    private List<Workspace> workspaces = new();
     private List<Desk> filteredDesks = new();
     private List<Booking> allBookings = new();
     private string? confirmationMessage;
@@ -52,6 +69,7 @@
     private async Task LoadData()
     {
         desks = await Http.GetFromJsonAsync<List<Desk>>("api/BookingApi/desks") ?? new();
+        workspaces = await Http.GetFromJsonAsync<List<Workspace>>("api/Workspace/all") ?? new();
         allBookings = await Http.GetFromJsonAsync<List<Booking>>("api/BookingApi/bookings") ?? new();
 
         myBookings = allBookings

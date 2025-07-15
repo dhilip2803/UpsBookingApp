@@ -6,8 +6,46 @@
 
 <h3>Floor Utilization Summary</h3>
 
-@if (summary.Any())
+<!-- Tabs -->
+<div class="btn-group mb-3">
+    <button class="btn @(activeType == "MeetingRoom" ? "btn-secondary" : "btn-outline-secondary")"
+            @onclick="@(() => activeType = "MeetingRoom")">
+        Add Meeting Room
+    </button>
+    <button class="btn @(activeType == "Desk" ? "btn-primary" : "btn-outline-primary")"
+            @onclick="@(() => activeType = "Desk")">
+        Add Desk
+    </button>
+</div>
+
+@if (activeType == "MeetingRoom")
 {
+    <h5>Meeting Room Summary</h5>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Floor</th>
+                <th>Total Meeting Rooms</th>
+                <th>Booked</th>
+                <th>Available</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in meetingSummary)
+            {
+                <tr>
+                    <td>@row.Floor</td>
+                    <td>@row.Total</td>
+                    <td>@row.Booked</td>
+                    <td>@row.Available</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (activeType == "Desk")
+{
+    <h5>Workspace Summary</h5>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -18,7 +56,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var row in summary)
+            @foreach (var row in workspaceSummary)
             {
                 <tr>
                     <td>@row.Floor</td>
@@ -36,16 +74,30 @@ else
 }
 
 @code {
+    private string activeType = "MeetingRoom";
+
     private List<Desk> desks = new();
+    private List<Workspace> workspaces = new();
     private List<Booking> bookings = new();
-    private List<FloorUtilSummary> summary = new();
+
+    private List<FloorUtilSummary> meetingSummary = new();
+    private List<FloorUtilSummary> workspaceSummary = new();
 
     protected override async Task OnInitializedAsync()
     {
         desks = await Http.GetFromJsonAsync<List<Desk>>("api/BookingApi/desks") ?? new();
+        workspaces = await Http.GetFromJsonAsync<List<Workspace>>("api/Workspace/all") ?? new();
         bookings = await Http.GetFromJsonAsync<List<Booking>>("api/BookingApi/bookings") ?? new();
 
-        summary = desks
+        CalculateMeetingSummary();
+        CalculateWorkspaceSummary();
+    }
+
+
+
+    private void CalculateMeetingSummary()
+    {
+        meetingSummary = desks
             .GroupBy(d => d.Floor)
             .Select(g => new FloorUtilSummary
             {
@@ -53,6 +105,29 @@ else
                 Total = g.Count(),
                 Booked = g.Count(d => !d.IsAvailable),
                 Available = g.Count(d => d.IsAvailable)
+            })
+            .OrderBy(f => f.Floor)
+            .ToList();
+    }
+
+    private void CalculateWorkspaceSummary()
+    {
+        workspaceSummary = workspaces
+            .GroupBy(w => w.Floor)
+            .Select(g =>
+            {
+                var bookedIds = bookings
+                    .Where(b => b.BookingType == "Workspace")
+                    .Select(b => b.DeskId)
+                    .ToHashSet();
+
+                return new FloorUtilSummary
+                {
+                    Floor = g.Key,
+                    Total = g.Count(),
+                    Booked = g.Count(w => bookedIds.Contains(w.Id)),
+                    Available = g.Count(w => !bookedIds.Contains(w.Id))
+                };
             })
             .OrderBy(f => f.Floor)
             .ToList();

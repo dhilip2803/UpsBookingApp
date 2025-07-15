@@ -1,25 +1,13 @@
 ﻿namespace UpsBookingApp.Client.Models
 {
-    public enum WorkspaceStatus
-    {
-        Available,
-        Selected,
-        Reserved
-    }
-
     public class Workspace
     {
         public int Id { get; set; }
-        public int TableNumber { get; set; }
-        public int SeatNumber { get; set; }
-        public WorkspaceStatus Status { get; set; }
-        public string Floor { get; set; } = string.Empty;
-
-        public string? Department { get; set; }
-
-        public string? Location { get; set; }
-
-        public ICollection<WorkspaceBooking> Bookings { get; set; } = new List<WorkspaceBooking>();
+        public int SeatNumber { get; set; }           // 1–100
+        public string Floor { get; set; } = "";       // "1st Floor", "2nd Floor"
+        public string Department { get; set; } = "";
+        public bool IsAvailable { get; set; } = true;
     }
+
 }
 
