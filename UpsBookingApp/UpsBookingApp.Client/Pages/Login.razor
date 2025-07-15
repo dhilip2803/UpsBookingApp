@@ -1,28 +1,44 @@
 ﻿@page "/"
 @using UPSBookingApp.Client.Services
+@using Microsoft.AspNetCore.Components.Forms
 @using UpsBookingApp.Client.Models
 @inject HttpClient Http
 @inject NavigationManager Nav
 @inject UserContext UserContext
 @rendermode InteractiveWebAssembly
 
-<h3>Login</h3>
+<div class="login-wrapper">
+    <div class="login-header">
+        <img src="https://ups.scene7.com/is/content/upsprod/Logo" alt="App Logo" class="login-logo" />
+        <h1 class="app-title">SpaceBook</h1>
+    </div>
 
-<div class="form-group">
-    <label>User ID</label>
-    <input class="form-control" @bind="inputUserId" />
+    <EditForm EditContext="@editContext" OnValidSubmit="LoginUser" class="login-form">
+     
+
+        <div class="form-group">
+            <label>User ID</label>
+            <InputText class="form-control" @bind-Value="inputUserId" />
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3 w-100">Login</button>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <p class="text-danger mt-2">@errorMessage</p>
+        }
+    </EditForm>
 </div>
-
-<button class="btn btn-primary mt-3" @onclick="LoginUser">Login</button>
-
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p class="text-danger">@errorMessage</p>
-}
 
 @code {
     private string inputUserId = "";
     private string errorMessage = "";
+    private EditContext editContext;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(this);
+    }
 
     private async Task LoginUser()
     {
@@ -37,12 +53,10 @@
             var user = await Http.GetFromJsonAsync<User>($"api/BookingApi/validate/{inputUserId}");
             if (user != null)
             {
-                // Set login user context
                 UserContext.UserId = user.UserId;
                 UserContext.UserName = user.Name;
                 UserContext.Role = user.Role;
 
-                // Redirect to main booking page
                 Nav.NavigateTo("/desk-booking");
             }
         }
