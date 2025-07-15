@@ -55,4 +55,28 @@ public class BookingApiController : ControllerBase
         if (user == null) return NotFound();
         return Ok(user);
     }
+
+    [HttpPost("workspace/book")]
+    public async Task<IActionResult> BookWorkspaceSeat([FromBody] Booking booking)
+    {
+        // Optional: Validate
+        if (booking.StartTime >= booking.EndTime)
+            return BadRequest("Invalid time range.");
+
+        var overlappingBooking = await _context.Bookings
+            .AnyAsync(b =>
+                b.DeskId == booking.DeskId &&
+                b.StartTime < booking.EndTime &&
+                b.EndTime > booking.StartTime);
+
+        if (overlappingBooking)
+            return Conflict("Seat already booked for the selected time.");
+
+        booking.BookingType = "Workspace"; // Optional
+        _context.Bookings.Add(booking);
+        await _context.SaveChangesAsync();
+
+        return Ok(booking);
+    }
+
 }

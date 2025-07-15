@@ -70,7 +70,7 @@
         }
     </div>
 
-    @if (!string.IsNullOrWhiteSpace(selectedFloor) && selectedType == "MeetingRooms")
+    @if (!string.IsNullOrWhiteSpace(selectedFloor) && selectedType == "MeetingRooms" && showResults)
     {  
 
         <div class="row">
@@ -106,6 +106,14 @@
             }
         </div>
     }
+    else if (selectedType == "Desks" && showResults)
+    {
+        <SeatMap Floor="selectedFloor"
+                 StartTime="StartDateTimeCombined"
+                 EndTime="EndDateTimeCombined"
+                 AllBookings="allBookings"
+                 UserName="UserContext.UserName" />
+    }
 
     @if (!string.IsNullOrWhiteSpace(suggestedDeskMessage))
     {
@@ -133,6 +141,7 @@ else
 
     private string? confirmationMessage;
     private string? suggestedDeskMessage;
+    private bool showResults = false;
 
     private DateTime StartDateTimeCombined => selectedDate.Date + startDateTime.TimeOfDay;
     private DateTime EndDateTimeCombined => selectedDate.Date + endDateTime.TimeOfDay;
@@ -222,6 +231,7 @@ else
     {
         await LoadData();
         FilterDesks();
+        showResults = true;
     }
 
     private Task OnTypeChanged(ChangeEventArgs e)

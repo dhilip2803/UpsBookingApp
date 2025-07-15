@@ -18,5 +18,8 @@
         public string? Department { get; set; }
 
         public string? Location { get; set; }
+
+        public ICollection<WorkspaceBooking> Bookings { get; set; } = new List<WorkspaceBooking>();
     }
 }
+
