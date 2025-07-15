@@ -86,6 +86,7 @@ else if (activeType == "Desk")
 
 @code {
     private List<Desk> desks = new();
+    // private List<Workspace> workspacedata = new();
     private Desk newDesk = new();
     private string? message;
     private string activeType = "MeetingRoom";
@@ -93,13 +94,17 @@ else if (activeType == "Desk")
     protected override async Task OnInitializedAsync()
     {
         await LoadDesks();
+        // await LoadWorkSpaceDetails();
     }
 
     private async Task LoadDesks()
     {
         desks = await Http.GetFromJsonAsync<List<Desk>>("api/BookingApi/desks") ?? new();
     }
-
+    // private async Task LoadWorkSpaceDetails()
+    // {
+    //     workspacedata = await Http.GetFromJsonAsync<List<Workspace>>("api/BookingApi/workspace") ?? new();
+    // }
     private async Task AddMeetingRoom()
     {
         newDesk.IsAvailable = true;

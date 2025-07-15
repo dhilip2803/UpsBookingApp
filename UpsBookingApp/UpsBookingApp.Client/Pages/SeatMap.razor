@@ -1,7 +1,9 @@
 ﻿@page "/seatmap"
 @using UpsBookingApp.Client.Models
 @rendermode InteractiveWebAssembly
+@using UPSBookingApp.Client.Services
 @inject HttpClient Http
+@inject UserContext UserContext
 
 <h4>Workspace Seat Map</h4>
 
@@ -133,7 +135,7 @@ private async Task BookSelectedSeat()
     var booking = new Booking
     {
         DeskId = SelectedSeat.Id,
-        UserName = UserName,
+        UserName = UserContext.UserName,
         StartTime = BookingStart,
         EndTime = BookingEnd,
         BookingType = "Workspace"

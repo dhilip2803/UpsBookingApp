@@ -56,7 +56,7 @@ else
 
 @if (activeType == "Desks")
 {
-    @if (groupedBookings?.Any() == true)
+    @if (deskBookings?.Any() == true)
     {
         <table class="table table-bordered">
             <thead>
@@ -65,11 +65,29 @@ else
                     <th>Booking Details</th>
                 </tr>
             </thead>
+        
+        <tbody>
+            @foreach (var deskGroup in deskBookings)
+            {
+                <tr>
+                    <td><b>@deskGroup.Key</b></td>
+                    <td>
+                        @foreach (var booking in deskGroup.Value)
+                        {
+                            <span class="badge bg-primary me-1">
+                                @booking.UserName: @booking.StartTime.ToString("dd MMM yyyy, hh:mm tt") - @booking.EndTime.ToString("dd MMM yyyy, hh:mm tt")
+                            </span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
         </table>
     }
 }
 @code {
     private Dictionary<string, List<Booking>> groupedBookings = new();
+    private Dictionary<string, List<Booking>> deskBookings = new();
     private List<Booking> myBookings = new();
     private List<Desk> desks = new();
     private List<Booking> allBookings = new();
@@ -87,6 +105,11 @@ else
             .ToList();
 
         groupedBookings = todayBookings
+            .Where(b => b.BookingType == "MeetingRoom")
+            .GroupBy(b => desks.FirstOrDefault(d => d.Id == b.DeskId)?.Name ?? $"Desk {b.DeskId}")
+            .ToDictionary(g => g.Key, g => g.OrderBy(b => b.StartTime).ToList());
+        deskBookings = todayBookings
+            .Where(b => b.BookingType == "Workspace")
             .GroupBy(b => desks.FirstOrDefault(d => d.Id == b.DeskId)?.Name ?? $"Desk {b.DeskId}")
             .ToDictionary(g => g.Key, g => g.OrderBy(b => b.StartTime).ToList());
     }

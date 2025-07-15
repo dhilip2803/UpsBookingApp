@@ -18,6 +18,10 @@ public class BookingApiController : ControllerBase
     public async Task<IActionResult> GetDesks() =>
         Ok(await _context.Desks.ToListAsync());
 
+    //[HttpGet("workspace")]
+    //public async Task<IActionResult> GetWorkSpaceData() =>
+    //   Ok(await _context.Workspaces.ToListAsync());
+
     [HttpGet("bookings")]
     public async Task<IActionResult> GetBookings() =>
         Ok(await _context.Bookings.ToListAsync());
@@ -27,7 +31,7 @@ public class BookingApiController : ControllerBase
     {
         var desk = await _context.Desks.FirstOrDefaultAsync(d => d.Id == booking.DeskId && d.IsAvailable);
         if (desk == null) return BadRequest("Desk unavailable");
-
+        booking.BookingType = "MeetingRoom";
         _context.Bookings.Add(booking);
         desk.IsAvailable = false;
         await _context.SaveChangesAsync();
