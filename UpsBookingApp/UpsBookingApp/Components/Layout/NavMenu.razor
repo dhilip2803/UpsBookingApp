@@ -1,39 +1,42 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href=""><img src="ups.png" style="width:30px"/> UPSmartBook </a>
+﻿@using UPSBookingApp.Client.Services
+@using UpsBookingApp.Client.Models
+@inject UserContext UserContext
+
+    <div class="top-row ps-3 navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href=""><img src="ups.png" style="width:30px"/> UPSmartBook </a>
+        </div>
     </div>
-</div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+    <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink href="/desk-booking" class="nav-link" Match="NavLinkMatch.All">
-                <span class="oi oi-calendar"></span> Booking Dashboard
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink href="/floor-summary" class="nav-link" Match="NavLinkMatch.All">
-                <span class="oi oi-pie-chart" aria-hidden="true"></span> Floor Summary
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink href="/admin-desks" class="nav-link" Match="NavLinkMatch.All">
-                <span class="oi oi-cog"></span> Admin Desks
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink href="/booking-calendar" class="nav-link" Match="NavLinkMatch.All">
-                <span class="oi oi-calendar"></span> Booking Calendar
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink href="/my-bookings" class="nav-link" Match="NavLinkMatch.All">
-                <span class="oi oi-calendar"></span> My Bookings
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
+    <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+        <nav class="flex-column">
+            <div class="nav-item px-3">
+                <NavLink href="/desk-booking" class="nav-link" Match="NavLinkMatch.All">
+                    <span class="oi oi-calendar"></span> Booking Dashboard
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink href="/floor-summary" class="nav-link" Match="NavLinkMatch.All">
+                    <span class="oi oi-pie-chart" aria-hidden="true"></span> Floor Summary
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink href="/admin-desks" class="nav-link" Match="NavLinkMatch.All">
+                    <span class="oi oi-cog"></span> Admin Dashboard
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink href="/booking-calendar" class="nav-link" Match="NavLinkMatch.All">
+                    <span class="oi oi-calendar"></span> Booking Calendar
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink href="/my-bookings" class="nav-link" Match="NavLinkMatch.All">
+                    <span class="oi oi-calendar"></span> My Bookings
+                </NavLink>
+            </div>
+        </nav>
+    </div>

@@ -4,14 +4,54 @@
 @using System.Net.Http.Json
 @using UpsBookingApp.Client.Models
 
-<h3>Admin Desk Management</h3>
+<h3>Admin Dashboard</h3>
 
+
+<div class="btn-group mb-3">
+    <button class="btn @(activeType == "MeetingRoom" ? "btn-secondary" : "btn-outline-secondary")"
+            @onclick="@(() => activeType = "MeetingRoom")">
+        Add Meeting Room
+    </button>
+    <button class="btn @(activeType == "Desk" ? "btn-primary" : "btn-outline-primary")"
+            @onclick="@(() => activeType = "Desk")">
+        Add Desk
+    </button>
+</div>
+@if (activeType == "MeetingRoom")
+{
+    <h5 class="mt-4">Add New Meeting Room</h5>
+    <div class="form-group">
+        <input class="form-control mb-2" placeholder="Meeting Room Name" @bind="newDesk.Name" />
+        <input class="form-control mb-2" placeholder="Room ID" @bind="newDesk.Location" />
+        <input class="form-control mb-2" placeholder="Landmark" @bind="newDesk.Description" />
+        <input class="form-control mb-2" placeholder="Capacity" @bind="newDesk.Capacity" />
+        <input class="form-control mb-2" placeholder="Floor" @bind="newDesk.Floor" />
+        <button class="btn btn-primary" @onclick="AddMeetingRoom">Add Room</button>
+    </div>
+}
+else if (activeType == "Desk")
+{
+    <h5 class="mt-4">Add New Desk</h5>
+    <div class="form-group">
+        <input class="form-control mb-2" placeholder="Desk Name" @bind="newDesk.Name" />
+        <input class="form-control mb-2" placeholder="Desk ID" @bind="newDesk.Location" />
+        <input class="form-control mb-2" placeholder="Landmark" @bind="newDesk.Description" />
+        <input class="form-control mb-2" placeholder="Floor" @bind="newDesk.Floor" />
+        <button class="btn btn-primary mb-4">Add Desk</button>
+    </div>
+}
+
+
+@if (activeType == "MeetingRoom")
+{
+    <h5 class="mt-4">Meeting Room Details</h5>
 <table class="table">
     <thead>
         <tr>
             <th>Name</th>
             <th>Location</th>
             <th>Description</th>
+            <th>Capacity</th>
             <th>Floor</th>
             <th>Status</th>
             <th>Action</th>
@@ -24,6 +64,7 @@
                 <td>@desk.Name</td>
                 <td>@desk.Location</td>
                 <td>@desk.Description</td>
+                <td>@desk.Capacity</td>
                 <td>@desk.Floor</td>
                 <td>@(desk.IsAvailable ? "Available" : "Booked")</td>
                 <td>
@@ -33,16 +74,10 @@
         }
     </tbody>
 </table>
+}
 
-<h5 class="mt-4">Add New Desk</h5>
 
-<div class="form-group">
-    <input class="form-control mb-2" placeholder="Meeting Room Name" @bind="newDesk.Name" />
-    <input class="form-control mb-2" placeholder="Room ID" @bind="newDesk.Location" />
-    <input class="form-control mb-2" placeholder="Landmark" @bind="newDesk.Description" />
-    <input class="form-control mb-2" placeholder="Floor" @bind="newDesk.Floor" />
-    <button class="btn btn-primary" @onclick="AddDesk">Add Desk</button>
-</div>
+
 
 @if (!string.IsNullOrWhiteSpace(message))
 {
@@ -53,6 +88,7 @@
     private List<Desk> desks = new();
     private Desk newDesk = new();
     private string? message;
+    private string activeType = "MeetingRoom";
 
     protected override async Task OnInitializedAsync()
     {
@@ -64,7 +100,7 @@
         desks = await Http.GetFromJsonAsync<List<Desk>>("api/BookingApi/desks") ?? new();
     }
 
-    private async Task AddDesk()
+    private async Task AddMeetingRoom()
     {
         newDesk.IsAvailable = true;
         var response = await Http.PostAsJsonAsync("api/AdminApi/add-desk", newDesk);
